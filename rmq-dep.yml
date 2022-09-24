@@ -8,7 +8,7 @@ spec:
   selector:
     matchLabels:
       app: vpromq01
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
@@ -29,4 +29,29 @@ spec:
         - name: RABBITMQ_DEFAULT_USER
           value: "guest"
 
+---
 
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: vpromq01
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vpromq01
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: AverageValue
+        averageValue: 100Mi
